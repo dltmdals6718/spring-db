@@ -5,6 +5,7 @@ import hello.springdb.domain.Member;
 import lombok.extern.slf4j.Slf4j;
 
 import java.sql.*;
+import java.util.NoSuchElementException;
 
 /**
  * JDBC - DriverManager 사용
@@ -36,8 +37,38 @@ public class MemberRepositoryV0 {
 
     }
 
+    public Member findById(String memberId) throws SQLException {
+        String sql = "SELECT * FROM member where member_id = ?";
+        Connection connection = null;
+        PreparedStatement preparedStatement = null;
+        ResultSet resultSet = null;
+
+        try {
+            connection = getConnection();
+            preparedStatement = connection.prepareStatement(sql);
+            preparedStatement.setString(1, memberId);
+            resultSet = preparedStatement.executeQuery();// <- 데이터 조회할때
+            //preparedStatement.executeUpdate(); <- 데이터 변경할때
+
+            if(resultSet.next()) { // resultset의 커서를 한번 옮겨야 실제 데이터 위치로 이동함
+                Member member = new Member();
+                member.setMemberId(resultSet.getString("member_id"));
+                member.setMoney(resultSet.getInt("money"));
+                return member;
+            } else {
+                throw new NoSuchElementException("member not found member_id = " + memberId);
+            }
+        } catch (SQLException e) {
+            log.error("db error", e);
+            throw e;
+        } finally {
+            close(connection, preparedStatement, resultSet);
+        }
+    }
+
     private void close(Connection connection, Statement statement, ResultSet resultSet) {
 
+        // Connection -> Statement -> ResultSet으로 획득했으니 close는 역순!
         if(resultSet != null) {
             try {
                 resultSet.close();
