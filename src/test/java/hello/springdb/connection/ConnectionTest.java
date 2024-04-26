@@ -1,5 +1,6 @@
 package hello.springdb.connection;
 
+import com.zaxxer.hikari.HikariDataSource;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
 import org.springframework.jdbc.datasource.DriverManagerDataSource;
@@ -28,6 +29,19 @@ public class ConnectionTest {
         DriverManagerDataSource dataSource = new DriverManagerDataSource(ConnectionConst.URL, ConnectionConst.USERNAME, ConnectionConst.PASSWORD);
         useDataConnection(dataSource);
         // DataSource로 한곳에서 설정하고 사용은 여러곳에서 사용하는 설정과 사용 분리가 가능하다.
+    }
+
+    @Test
+    void dataSourceConnectionPool() throws SQLException, InterruptedException {
+        HikariDataSource dataSource = new HikariDataSource();
+        dataSource.setJdbcUrl(ConnectionConst.URL);
+        dataSource.setUsername(ConnectionConst.USERNAME);
+        dataSource.setPassword(ConnectionConst.PASSWORD);
+        dataSource.setMaximumPoolSize(11);
+        dataSource.setPoolName("MyPool");
+
+        useDataConnection(dataSource);
+        Thread.sleep(1000);
     }
 
     private void useDataConnection(DataSource dataSource) throws SQLException {
