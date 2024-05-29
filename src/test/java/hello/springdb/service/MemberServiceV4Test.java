@@ -48,8 +48,8 @@ class MemberServiceV4Test {
         @Bean
         MemberRepository memberRepositoryV4() {
 //            return new MemberRepositoryV4_1(dataSource);
-            return new MemberRepositoryV4_2(dataSource);
-//            return new MemberRepositoryV5(dataSource);
+//            return new MemberRepositoryV4_2(dataSource);
+            return new MemberRepositoryV5(dataSource);
         }
 
         @Bean
